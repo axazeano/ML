@@ -65,7 +65,6 @@ class TF_IDF:
             json.dump(self.words, w)
         logging.info('Finished')
 
-
     def load_results(self):
         self.tag_words = json.loads(open('tagged_words.json').read())
         self.words = json.loads(open('words.json').read())
@@ -90,22 +89,26 @@ class TF_IDF:
 
 base = TF_IDF()
 
-# print('----Processing csv----')
-# with open('/home/vladimir/Train/TrainLight.csv', 'r') as train:
-#             csv_reader = csv.reader(train, delimiter=',')
-#             for row in csv_reader:
-#                 base.add_tagged_text(row[3], row[2])
-#
-# # print('----Processing csv end!----')
-# # print('----Save results----')
-# base.save_result()
+print('----Processing csv----')
+with open('~/Train/TrainLight.csv', 'r') as train:
+            csv_reader = csv.reader(train, delimiter=',')
+            for row in csv_reader:
+                base.add_tagged_text(row[3], row[2])
+
+print('----Processing csv end!----')
+print('----Save results----')
+base.save_result()
 print('----Save results end!----')
-print('----load results----')
-base.load_results()
+print('----Calc IDF----')
+base.calc_IDF()
+print('----Calc IDF end!----')
+# print('----Save results end!----')
+# print('----load results----')
+# base.load_results()
 # # # print(len(base.tag_words))
 # # # print('----load results end----')
 # # # print('----calc----')
-base.calc_IDF()
+# base.calc_IDF()
 # print(len(base.tag_words))
 # print('----calc end----')
 
