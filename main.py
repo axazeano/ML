@@ -5,12 +5,10 @@ import multiprocessing as mp
 import operator
 import threading as th
 from multiprocessing.dummy import Pool as ThreadPool
-from multiprocessing.dummy import Lock
 import string
 import re
 import logging
 import math
-import msgpack
 
 regex = re.compile('[%s]' % re.escape(string.punctuation))
 out = regex.sub(' ', "This is, fortunately. A Test! string")
@@ -32,16 +30,9 @@ class TF_IDF:
         return tags, text
 
     def add_tagged_text(self, tags, text):
-
-        # print(tags)
-        # text = text.translate(self.translation_table).split()
-        try:
-            text = text.lower()
-            text = regex.sub(' ', text).split()
-            tags = tags.split()
-        except IndexError:
-            print('Error with string {}'.format(text))
-            return
+        text = text.lower()
+        text = regex.sub(' ', text).split()
+        tags = tags.split()
 
         for tag in tags:
             if tag not in self.tag_words:
@@ -87,23 +78,14 @@ class TF_IDF:
                 ({k, dictionary[1][k]} for k in sorted(dictionary[1], key=dictionary[1].get, reverse=True))
         self.pool.map(sort, self.tag_words.items())
 
-    def calc(self):
-        import pickle
-
-        # def inner(dictionary):
-        #     for word in dictionary[1]:
-        #         self.tag_words[dictionary[0]][word] *= math.log10(self.count_of_docs/self.words[word])
-        for dictionary in self.tag_words.items():
+    def calc_IDF(self):
+        def inner(dictionary):
             for word in dictionary[1]:
-                tmp = word.lower()
-                try:
-                    self.tag_words[dictionary[0]][tmp] *= math.log10(self.count_of_docs/self.words[tmp])
-                except KeyError:
-                    print('eeee')
-        # self.pool.map(inner, self.tag_words.items())
+                self.tag_words[dictionary[0]][word] *= math.log10(self.count_of_docs/self.words[word])
+        self.pool.map(inner, self.tag_words.items())
 
-        with open('matrix.pickle', 'wb') as m:
-            pickle.dump(self.tag_words, m)
+        with open('tagged_words.json', 'w') as tw:
+            json.dump(self.tag_words, tw)
 
 
 base = TF_IDF()
@@ -123,7 +105,7 @@ base.load_results()
 # # # print(len(base.tag_words))
 # # # print('----load results end----')
 # # # print('----calc----')
-base.calc()
+base.calc_IDF()
 # print(len(base.tag_words))
 # print('----calc end----')
 
